@@ -4,36 +4,38 @@
  * This is the first thing users see of our App, at the '/' route
  */
 
-import React, { useEffect, memo } from 'react';
-import PropTypes from 'prop-types';
-import { Helmet } from 'react-helmet';
-import { FormattedMessage } from 'react-intl';
-import { connect } from 'react-redux';
-import { compose } from 'redux';
-import { createStructuredSelector } from 'reselect';
+import React, { useEffect, memo } from "react";
+import PropTypes from "prop-types";
+import { Helmet } from "react-helmet";
+import { FormattedMessage } from "react-intl";
+import { connect } from "react-redux";
+import { compose } from "redux";
+import { createStructuredSelector } from "reselect";
 
-import { useInjectReducer } from 'utils/injectReducer';
-import { useInjectSaga } from 'utils/injectSaga';
+import { useInjectReducer } from "utils/injectReducer";
+import { useInjectSaga } from "utils/injectSaga";
 import {
   makeSelectRepos,
   makeSelectLoading,
-  makeSelectError,
-} from 'containers/App/selectors';
-import H2 from 'components/H2';
-import ReposList from 'components/ReposList';
-import AtPrefix from './AtPrefix';
-import CenteredSection from './CenteredSection';
-import Form from './Form';
-import Input from './Input';
-import Section from './Section';
-import messages from './messages';
-import { loadRepos } from '../App/actions';
-import { changeUsername } from './actions';
-import { makeSelectUsername } from './selectors';
-import reducer from './reducer';
-import saga from './saga';
+  makeSelectError
+} from "containers/App/selectors";
+import H2 from "components/H2";
+import ReposList from "components/ReposList";
+import AtPrefix from "./AtPrefix";
+import CenteredSection from "./CenteredSection";
+import Form from "./Form";
+import Input from "./Input";
+import Section from "./Section";
+import messages from "./messages";
+import { loadRepos } from "../App/actions";
+import { changeUsername } from "./actions";
+import { makeSelectUsername } from "./selectors";
+import reducer from "./reducer";
+import saga from "./saga";
+import { reducer as formReducer } from "redux-form";
+import SyncValidationForm from "./SyncValidationForm";
 
-const key = 'home';
+const key = "home";
 
 export function HomePage({
   username,
@@ -41,8 +43,9 @@ export function HomePage({
   error,
   repos,
   onSubmitForm,
-  onChangeUsername,
+  onChangeUsername
 }) {
+  useInjectReducer({ key: "form", reducer: formReducer });
   useInjectReducer({ key, reducer });
   useInjectSaga({ key, saga });
 
@@ -54,8 +57,17 @@ export function HomePage({
   const reposListProps = {
     loading,
     error,
-    repos,
+    repos
   };
+
+  const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+  async function handleFormSubmit(values) {
+    values.preventDefault();
+    console.log("handlePropertyFormSubmit: ", values);
+    sleep(5000);
+    window.alert(`Your submited \n\n ${JSON.stringify(values)} `);
+  }
 
   return (
     <article>
@@ -76,9 +88,15 @@ export function HomePage({
           </p>
         </CenteredSection>
         <Section>
+          <H2>React Redux Form</H2>
+          <SyncValidationForm handleSubmit={handleFormSubmit} />
+        </Section>
+
+        <Section>
           <H2>
             <FormattedMessage {...messages.trymeHeader} />
           </H2>
+
           <Form onSubmit={onSubmitForm}>
             <label htmlFor="username">
               <FormattedMessage {...messages.trymeMessage} />
@@ -107,14 +125,14 @@ HomePage.propTypes = {
   repos: PropTypes.oneOfType([PropTypes.array, PropTypes.bool]),
   onSubmitForm: PropTypes.func,
   username: PropTypes.string,
-  onChangeUsername: PropTypes.func,
+  onChangeUsername: PropTypes.func
 };
 
 const mapStateToProps = createStructuredSelector({
   repos: makeSelectRepos(),
   username: makeSelectUsername(),
   loading: makeSelectLoading(),
-  error: makeSelectError(),
+  error: makeSelectError()
 });
 
 export function mapDispatchToProps(dispatch) {
@@ -123,16 +141,16 @@ export function mapDispatchToProps(dispatch) {
     onSubmitForm: evt => {
       if (evt !== undefined && evt.preventDefault) evt.preventDefault();
       dispatch(loadRepos());
-    },
+    }
   };
 }
 
 const withConnect = connect(
   mapStateToProps,
-  mapDispatchToProps,
+  mapDispatchToProps
 );
 
 export default compose(
   withConnect,
-  memo,
+  memo
 )(HomePage);
