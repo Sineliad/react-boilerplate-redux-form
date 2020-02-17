@@ -63,7 +63,6 @@ export function HomePage({
   const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
   async function handleFormSubmit(values) {
-    values.preventDefault();
     console.log("handlePropertyFormSubmit: ", values);
     sleep(5000);
     window.alert(`Your submited \n\n ${JSON.stringify(values)} `);
@@ -89,7 +88,7 @@ export function HomePage({
         </CenteredSection>
         <Section>
           <H2>React Redux Form</H2>
-          <SyncValidationForm handleSubmit={handleFormSubmit} />
+          <SyncValidationForm onSubmit={handleFormSubmit} />
         </Section>
 
         <Section>
